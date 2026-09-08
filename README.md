@@ -1,17 +1,18 @@
 # tink-agent
 
 <p align="center">
-  <img src="assets/readme-hero.png" alt="Tink Agent voice controller hero showing a Ting mic with push-to-talk, mic input, and approve button callouts" width="100%">
+  <img src="assets/readme-hero.png" alt="Tink Agent voice controller hero showing an EP-2350 mic with push-to-talk, mic input, and approve button callouts" width="100%">
 </p>
 
-Turn a Teenage Engineering EP-2350 "Ting" mic into a voice-and-button controller
-for AI coding agents.
+Turn a Teenage Engineering EP-2350 mic into a voice-and-button controller for AI
+coding agents. The EP-2350 is sold under two names, "Ting" and "FX MIC"; everything
+here applies to both.
 
 Hold the handle, talk to your agent, and let go. Press the mic buttons to approve,
 reject, interrupt, move through modes, or send little command macros. No keyboard
 shuffle, no hunting for the focused terminal, no "wait, where did I type that?"
 
-It is a macOS menu-bar app with a delightfully weird trick inside: the Ting does not
+It is a macOS menu-bar app with a delightfully weird trick inside: the EP-2350 does not
 send button events to the Mac, so tink-agent teaches the mic to play tiny tone cues,
 detects those tones in the same audio stream as your voice, and turns them into
 keystrokes.
@@ -42,7 +43,7 @@ The result feels closer to directing an agent than operating a terminal.
 
 ## Core features
 
-- **Push-to-talk voice input** - the Ting handle is the natural talk boundary. Hold,
+- **Push-to-talk voice input** - the EP-2350 handle is the natural talk boundary. Hold,
   speak, release, and tink-agent transcribes the utterance into the focused app.
 - **Up to 8 mic-triggered actions** - green selects a slot, white plays it, orange
   switches mode. Mode A gives slots 1-4; mode B gives slots 5-8.
@@ -73,7 +74,7 @@ Example mappings:
 | Mode B, slots 3-4 | No-op by default | reserved for your macros |
 
 <p align="center">
-  <img src="assets/readme-buttons.png" alt="Customize the buttons: three Ting buttons map to up to eight action slots" width="100%">
+  <img src="assets/readme-buttons.png" alt="Customize the buttons: three EP-2350 buttons map to up to eight action slots" width="100%">
 </p>
 
 ## Inspiration
@@ -85,11 +86,12 @@ his X post inspired this project.
 
 - **macOS** - tink-agent is a menu-bar app and installs as a LaunchAgent.
 - **Python 3.14** - the repo runs directly with `python -m tink_agent`.
-- **Teenage Engineering EP-2350 Ting** - the handheld mic, running on its own
-  batteries during normal use.
-- **Analog audio path** - Ting line-out into a USB audio adapter. On the reference
-  setup this appears as `USB Audio Device`. This is the live connection; tink-agent
-  does not use the Ting's USB-C port during normal operation.
+- **Teenage Engineering EP-2350** - the handheld mic, running on its own batteries
+  during normal use. Units named Ting and units named FX MIC both work; see below.
+- **Analog audio path** - mic line-out into a USB audio adapter with a line/mic
+  *input*. On the reference setup this appears as `USB Audio Device`. This is the
+  live connection; tink-agent does not use the mic's USB-C port during normal
+  operation. Output-only headphone dongles will not work.
 - **Speech-to-text software** - choose one:
   - [MacWhisper](https://goodsnooze.gumroad.com/l/macwhisper)
   - `whisper-cli` from [whisper.cpp](https://github.com/ggml-org/whisper.cpp)
@@ -97,12 +99,28 @@ his X post inspired this project.
   - a custom command that accepts a WAV file and prints or writes text
 - **macOS permissions** - Microphone for capture, Accessibility for keystrokes.
 
+### Supported mics
+
+| | EP-2350 "Ting" | EP-2350 "FX MIC" |
+|---|---|---|
+| USB disk name | `TINGDISK` | `FX MIC DISK` |
+| Firmware boot disk | `TING BOOT` | `FX MIC BOOT` |
+| Factory samples | siren, alarm, gunshot, monkey boy | horn, claps, bell, f*k |
+| `config.json` schema | same | same |
+| Works with tink-agent | yes | yes |
+
+Both names refer to the same EP-2350: same RP2350 hardware, same four voice effects
+(echo, echo+spring, pixie, robot), same four replaceable sample slots, same
+parameter lever, same 3.5 mm line-out on a curly cable, and the same JSON preset
+format. tink-agent detects whichever disk is mounted and uses the same
+`ting-config/` files for both.
+
 ## Disclaimer
 
 tink-agent is an independent project. It is not affiliated with, endorsed by, or
 supported by Teenage Engineering.
 
-We are just very fond of their hardware. The EP-2350 Ting is a strange, charming
+We are just very fond of their hardware. The EP-2350 is a strange, charming
 little object, and this project exists because its constraints are interesting.
 
 ## The hardware trick
@@ -111,18 +129,18 @@ little object, and this project exists because its constraints are interesting.
   <img src="assets/readme-hardware-trick.png" alt="Eight actions down one audio cable: one audio wire, tone cues, orange pitch mode, and Goertzel detection" width="100%">
 </p>
 
-The Ting's USB-C port is not a live audio or button-data connection. tink-agent uses
+The EP-2350's USB-C port is not a live audio or button-data connection. tink-agent uses
 USB-C only during initial setup, when you copy `config.json` and the tone samples to
-the `TINGDISK` volume. After that, normal operation is battery-powered Ting plus the
+the mic's disk (`TINGDISK` or `FX MIC DISK`). After that, normal operation is battery-powered EP-2350 plus the
 analog audio jack.
 
-Audio reaches the Mac through the Ting line-out into a USB audio adapter, and the
+Audio reaches the Mac through the EP-2350 line-out into a USB audio adapter, and the
 buttons do not appear as HID, MIDI, keyboard, serial, or anything else.
 
 So tink-agent treats audio as the one true transport:
 
 ```text
-Ting handle held
+EP-2350 handle held
   -> analog line-out
   -> USB audio adapter
   -> one macOS input stream
@@ -130,7 +148,7 @@ Ting handle held
   -> keystrokes + transcription
 ```
 
-The bundled `ting-config/` turns the Ting's sample buttons into short pure-tone cues.
+The bundled `ting-config/` turns the EP-2350's sample buttons into short pure-tone cues.
 tink-agent watches the audio stream with a Goertzel detector. When it hears one of
 the expected frequencies, it fires the mapped action.
 
@@ -147,11 +165,11 @@ The shipped slot layout:
 | 7 | B | 5685 Hz | No-op |
 | 8 | B | 7153 Hz | No-op |
 
-The orange button selects the Ting preset. In our config, orange position 0 is mode A
+The orange button selects the EP-2350 preset. In our config, orange position 0 is mode A
 and orange position 1 is mode B. Both presets play the same four sample tones, but
 mode B pitches them up by +10.5 semitones, giving four more detectable frequencies.
 
-There is one important device gotcha: the factory Ting presets can modulate sample
+There is one important device gotcha: the factory EP-2350 presets can modulate sample
 pitch with the handle position. That smears button tones into the speech band and
 makes them unreliable. The bundled `ting-config/config.json` uses fixed-pitch SAMPLE
 presets so the tones stay crisp and detectable. Read [TING.md](TING.md) before
@@ -174,16 +192,19 @@ Dominance compares the winning tone bin against the other configured bins; tonal
 compares that same bin against total block energy. This is why speech does not
 accidentally press Enter.
 
-## Install the Ting device config
+## Install the EP-2350 device config
 
-The app needs the Ting to play the expected tone samples. This is the one-time
+The app needs the EP-2350 to play the expected tone samples. This is the one-time
 USB-C part of setup.
 
-1. Connect the Ting over USB-C and power it on so `TINGDISK` mounts.
-2. Wait for the `TINGDISK` volume to mount.
-3. Copy the contents of [`ting-config/`](ting-config/) to the root of `TINGDISK`.
-4. Restart the Ting. Device config is loaded only at boot.
-5. For normal use, disconnect USB-C. Run the Ting from its own batteries and connect
+1. Connect the EP-2350 over USB-C and power it on so its disk mounts. It is named
+   `TINGDISK` or `FX MIC DISK`, matching the name your unit was sold under.
+2. Wait for the disk to mount.
+3. Copy the contents of [`ting-config/`](ting-config/) to the root of the disk, so
+   `config.json` and `samples/` sit at the top level (not inside a `ting-config`
+   folder).
+4. Restart the EP-2350. Device config is loaded only at boot.
+5. For normal use, disconnect USB-C. Run the EP-2350 from its own batteries and connect
    only the line-out/audio jack to your USB audio adapter.
 
 The app also includes onboarding checks for this flow. If you want the hardware
@@ -353,14 +374,14 @@ Threading model:
 .venv/bin/pytest -q
 ```
 
-Most OS-touching dependencies are injected, so tests run without the Ting, microphone
+Most OS-touching dependencies are injected, so tests run without the EP-2350, microphone
 permissions, Accessibility permissions, or an installed STT tool. Real audio fixtures
 cover the important regressions: speech should not fire actions, and configured tones
 should detect in order.
 
 ## Project docs
 
-- [TING.md](TING.md) - device research, Ting config schema, hardware gotchas.
+- [TING.md](TING.md) - device research, EP-2350 config schema, hardware gotchas.
 - [AGENTS.md](AGENTS.md) - developer guide for the repo architecture.
 
 ## License

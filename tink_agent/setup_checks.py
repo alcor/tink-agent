@@ -54,12 +54,33 @@ def request_accessibility(prompt_fn=None) -> None:
 _SAMPLE_NAMES = ("1.wav", "2.wav", "3.wav", "4.wav")
 
 
-def tingdisk_path(volumes="/Volumes", name="TINGDISK") -> str:
-    return os.path.join(volumes, name)
+# The EP-2350 is sold under two names, Ting and FX MIC, with matching disk names.
+# Same firmware and config.json schema; only the volume name differs.
+SUPPORTED_MICS = {"TINGDISK": "Ting", "FX MIC DISK": "FX MIC"}
+_DEFAULT_DISK = "TINGDISK"
+
+
+def mounted_disk(volumes="/Volumes", exists_fn=os.path.isdir) -> str | None:
+    """Volume name of the first supported mic disk that is mounted, else None."""
+    return next((n for n in SUPPORTED_MICS if exists_fn(os.path.join(volumes, n))), None)
+
+
+def mic_model(volumes="/Volumes", exists_fn=os.path.isdir) -> str | None:
+    """Name the mounted EP-2350 was sold under ("Ting" / "FX MIC"), else None."""
+    disk = mounted_disk(volumes, exists_fn)
+    return SUPPORTED_MICS[disk] if disk else None
+
+
+def tingdisk_path(volumes="/Volumes", name=None, exists_fn=os.path.isdir) -> str:
+    """Mic volume path: the explicit name, else the mounted mic disk, else TINGDISK."""
+    disk = name or mounted_disk(volumes, exists_fn) or _DEFAULT_DISK
+    return os.path.join(volumes, disk)
 
 
 def is_tingdisk_mounted(path=None, exists_fn=os.path.isdir) -> bool:
-    return bool(exists_fn(path or tingdisk_path()))
+    if path:
+        return bool(exists_fn(path))
+    return mounted_disk(exists_fn=exists_fn) is not None
 
 
 def audio_present(config, resolve_fn=None) -> bool:

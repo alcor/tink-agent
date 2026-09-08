@@ -124,7 +124,7 @@ Each file has one responsibility. Sizes are small on purpose — keep them that 
 | `menubar.py` | rumps app, lifecycle, shared setters | `TinkAgentApp`, `rescan_devices`, `main` |
 | `theme.py` | Native-leaning AppKit theme: warm window, NSBox grouped cards, `NSSwitch`/`NSPopUpButton` row builders, accent/link buttons, onboarding step row; registers bundled Archivo from `assets/fonts/`. Targets retained in a module list (native controls reject attrs) | `window`, `card`, `switch_row`, `popup_row`, `accent_button`, `StepRow`, palette |
 | `settings_ui.py` | Native AppKit Settings window, themed via `theme` (incl. Audio source dropdown + Refresh) | `SettingsController` |
-| `setup_checks.py` | Pure-logic checks behind onboarding (perms, TINGDISK, copy) | `mic_status`, `copy_device_config`, `files_match` |
+| `setup_checks.py` | Pure-logic checks behind onboarding (perms, mic disk, copy) | `mic_status`, `copy_device_config`, `files_match` |
 | `onboarding.py` | First-run "Set up TINK" window, themed via `theme` (4 steps + usage, incl. Audio source picker) | `OnboardingController` |
 | `button_actions.py` | "Map a Button" window (opened from Settings): SVG device w/ live mode+slot LEDs, Bank/Slot segmented controls, action popup; edits go to `set_slot_action` | `ButtonActionsController`, `slot_number` |
 | `__main__.py` | `python -m tink_agent` entry | calls `menubar.main()` |
@@ -296,7 +296,7 @@ Functions to manage `~/Library/LaunchAgents/io.github.tajchert.tinkagent.plist`:
 
 - **User config**: `~/.tink-agent/config.json` (the `Config` dataclass).
 - **Device config** (separate!): `ting-config/config.json` + `ting-config/samples/*.wav`
-  are copied onto the mic's `TINGDISK` drive. These define the **button tone samples**
+  are copied onto the mic's disk (`TINGDISK` or `FX MIC DISK`). These define the **button tone samples**
   and the fixed-pitch SAMPLE preset. Regenerate tones with `assets/make_icon.py`? No —
   tones are generated ad-hoc with ffmpeg (see git history / `TING.md`); the icons are in
   `assets/make_icon.py`.
@@ -434,4 +434,4 @@ ever drew the icon, so audio start is deferred to the first `_tick`.
 - **Dominance / tonality** — the two tone-detection gates (relative bin power; absolute
   pure-tone-ness). See §4.3.
 - **VAD** — voice activity detection (the energy gate in `VoiceGate`).
-- **TINGDISK** — the mic's USB mass-storage volume holding its `config.json` + samples.
+- **TINGDISK / FX MIC DISK** — the mic's USB mass-storage volume holding its `config.json` + samples; the name matches whether the EP-2350 was sold as Ting or FX MIC.

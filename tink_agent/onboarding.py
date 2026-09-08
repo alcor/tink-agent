@@ -21,7 +21,7 @@ _REPO = Path(__file__).resolve().parent.parent
 
 _CARD_SPECS = [
     ("1", "Check permissions", "Microphone and Accessibility for Python.", "grant"),
-    ("2", "Connect TINK", "USB-C for files, line-out adapter for audio.", None),
+    ("2", "Connect TINK", "EP-2350: USB-C for files, line-out adapter for audio.", None),
     ("3", "Load config", "Copy the tone config and samples onto the mic.", "copy"),
     ("4", "Verify", "Restart the mic, then press a button to confirm.", "arm"),
 ]
@@ -186,13 +186,14 @@ class OnboardingController(NSObject):
         if self.cards[0]["btn"] is not None:
             self.cards[0]["btn"].setHidden_(ok1)
 
-        mounted = setup_checks.is_tingdisk_mounted()
+        model = setup_checks.mic_model()
+        mounted = model is not None
         audio_ok = setup_checks.audio_present(c)
         ok2 = mounted and audio_ok
         self.cards[1]["row"].set_state("done" if ok2 else ("active" if ok1 else "pending"))
         self.cards[1]["row"].set_subtitle(
-            "TINK connected (files + audio)." if ok2 else
-            f"{'TINGDISK ok' if mounted else 'plug in USB-C'} · "
+            f"{model} connected (files + audio)." if ok2 else
+            f"{model + ' disk ok' if mounted else 'plug in USB-C'} · "
             f"{'audio ok' if audio_ok else 'connect line-out adapter'}")
         self._rebuild_devices()
 

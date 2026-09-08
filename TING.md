@@ -1,18 +1,19 @@
-# TING.md — Teenage Engineering EP-2350 "Ting"
+# TING.md — Teenage Engineering EP-2350 ("Ting" / "FX MIC")
 
-Reference doc for the EP-2350 Ting mic as a **voice + button input device for AI agent harnesses** (Claude Code, Codex).
-Authoritative source: the on-device `readme.pdf` (TINGDISK), cross-checked with TE web docs. Last verified: 2026-06-27.
+Reference doc for the EP-2350 mic as a **voice + button input device for AI agent harnesses** (Claude Code, Codex).
+The EP-2350 is sold under two names, **Ting** and **FX MIC** (see "The two names" below); the rest of this document says EP-2350 and applies to both.
+Authoritative source: the on-device `readme.pdf` (TINGDISK / FX MIC DISK), cross-checked with TE web docs. Last verified: 2026-06-27 (Ting-named unit), 2026-09-08 (FX MIC-named unit).
 
 ---
 
 ## TL;DR — what matters for our project
 
-1. **The mic is NOT a USB audio interface.** Its USB-C port only does **power + file management** (mounts as a disk; on this Mac it appears as `/Volumes/TINGDISK`). Audio does **not** travel over USB.
+1. **The mic is NOT a USB audio interface.** Its USB-C port only does **power + file management** (mounts as a disk: `/Volumes/TINGDISK` on a Ting-named unit, `/Volumes/FX MIC DISK` on an FX MIC-named unit). Audio does **not** travel over USB.
 2. **Audio reaches the Mac via the analog line-out → Ugreen USB adapter.** On this machine that adapter is the C-Media **`USB Audio Device`** (1 input ch, 48 kHz). In `ffmpeg -f avfoundation` it is device index **`[5] USB Audio Device`** (verify index each session — it can shift).
 3. **The buttons send NO data to the computer.** Orange/green/white buttons + the handle are *purely on-device* — no HID, MIDI, or keyboard. There is no data channel for button state.
    - ⇒ "press a button to approve (send Enter)" **cannot be wired directly.** It must be **inferred from the audio stream**: assign a button a distinct tone via `config.json` sample, detect that cue in the capture, synthesize the keystroke. See "Phase 2 implications".
 4. **The mic is only live while the handle is pushed.** Pushing the handle powers on AND enables the microphone (walkie-talkie PTT behavior). Releasing → (battery) power-save after 5 min, off after 20 min; on USB it stays powered.
-5. **Customization = drop `config.json` + `1.wav`..`4.wav` onto TINGDISK, then RESTART the unit.** Changes are NOT picked up live — you must power-cycle (button above USB-C off, push handle on).
+5. **Customization = drop `config.json` + `1.wav`..`4.wav` onto the mic disk, then RESTART the unit.** Changes are NOT picked up live — you must power-cycle (button above USB-C off, push handle on).
 
 ---
 
@@ -29,7 +30,28 @@ Authoritative source: the on-device `readme.pdf` (TINGDISK), cross-checked with 
 | Power | 2× AAA **or** USB-C (5 V ≥ 1 A). USB power overrides batteries; batteries are NOT charged |
 | Power save (battery) | Power-save 5 min after handle release; off after 20 min; low-batt = blinking LED |
 | Power (USB) | Stays on until cable pulled |
-| Storage | ~1 MB user space on TINGDISK |
+| Storage | ~1 MB user space on TINGDISK / FX MIC DISK |
+
+### The two names: Ting and FX MIC
+
+The EP-2350 is sold under two names, **Ting** and **FX MIC**. They are the same
+device: same RP2350 board, same controls, same four effect presets
+`[ clean, echo, echo+spring, pixie, robot ]`, same four replaceable sample slots, same
+2 VRMS line-out on a 3.5 mm curly cable, same 2× AAA or USB-C power, and the same
+`config.json` preset format. The on-device `readme.pdf` is identical apart from the
+names below. Everything else in this document applies to both.
+
+| | Ting | FX MIC |
+|---|---|---|
+| Mass-storage volume | `TINGDISK` | `FX MIC DISK` |
+| Firmware (UF2) boot volume | `TING BOOT` | `FX MIC BOOT` |
+| Factory sample slots | siren, alarm, gunshot, monkey boy | horn, claps, bell, f*k |
+| Factory sample file seen on disk | `1_.wav` (16 kHz stereo s16, 6.4 s, 410 KB) | `4_.wav` (32 kHz stereo s16, 3.6 s, 473 KB) |
+
+Verified 2026-09-08 on an FX MIC-named unit: `FX MIC DISK` mounts with `4_.wav`, `readme.pdf`, and
+`System Volume Information/`; `config.json` + `samples/1..4.wav` copied to the root and
+`setup_checks.files_match()` reports a full match. `tink_agent.setup_checks` looks for
+either volume name and reports the model it found.
 
 ### Controls
 - **Handle (squeeze / "PTT")** — push to power on **and to enable the mic**. Handle **position (0–100%) modulates an effect parameter** (which one is preset-defined). Continuous control, not a clean digital button.
@@ -53,9 +75,9 @@ Authoritative source: the on-device `readme.pdf` (TINGDISK), cross-checked with 
 
 ```
                  ┌─────────────────────────────┐
-   USB-C ───────▶│ Power (5V/1A) + TINGDISK     │   files only — NO audio, NO button data
+   USB-C ───────▶│ Power (5V/1A) + mic disk     │   files only — NO audio, NO button data
                  │ mass storage when powered on │
-   EP-2350 Ting  └─────────────────────────────┘
+   EP-2350       └─────────────────────────────┘
         │
         │ stereo line-out (analog, post-effects, 2 VRMS)
         ▼
@@ -65,12 +87,12 @@ Authoritative source: the on-device `readme.pdf` (TINGDISK), cross-checked with 
    └──────────────────┘          └──────────────┘
 ```
 
-- **Edit config/samples:** USB-C + power on → `/Volumes/TINGDISK` mounts. Then **restart unit** to apply.
+- **Edit config/samples:** USB-C + power on → the mic disk (`/Volumes/TINGDISK` or `/Volumes/FX MIC DISK`) mounts. Then **restart unit** to apply.
 - **Capture voice:** read the `USB Audio Device` input (the Ugreen). Mic only passes audio while handle is pushed.
 - Both cables can be connected at once (USB-C for power/files, line-out→Ugreen for audio).
 
 ### Verified on this machine (2026-06-27)
-- `/Volumes/TINGDISK` mounts when powered on. Default contents: `1_.wav` (factory sample), `readme.pdf`, `System Volume Information/`. **No `config.json` by default — you create it.**
+- `/Volumes/TINGDISK` (Ting-named unit) mounts when powered on. Default contents: `1_.wav` (factory sample), `readme.pdf`, `System Volume Information/`. **No `config.json` by default — you create it.**
 - Factory `1_.wav`: PCM s16le, **16 kHz, stereo, 16-bit, 6.41 s, 410 KB**.
 - `USB Audio Device` = C-Media, 1 in ch, 48 kHz; ffmpeg avfoundation `[5]`.
 
@@ -78,7 +100,7 @@ Authoritative source: the on-device `readme.pdf` (TINGDISK), cross-checked with 
 
 ## `config.json` — authoritative schema (from on-device readme)
 
-Create `config.json` at TINGDISK root. It **overrides presets and selects which samples play**. Strict JSON (parsing errors will fail to load). Uninitialized parameters use defaults.
+Create `config.json` at the mic disk root. It **overrides presets and selects which samples play**. Strict JSON (parsing errors will fail to load). Uninitialized parameters use defaults.
 
 **Recovery:** if a config is so extreme the unit won't start, **hold green + white while powering on**, then fix the file.
 **Apply changes:** samples/config are read only at boot — power off (button above USB-C) and push handle to restart.
@@ -125,7 +147,7 @@ Create `config.json` at TINGDISK root. It **overrides presets and selects which 
 
 ### Field reference
 - **`name`** — pack name (string).
-- **`samples[]`** — `pos` (0-indexed slot, optional → defaults to array order), `file` (path on TINGDISK, subdirs OK e.g. `samples/`, `live1/`), `playmode`: `"oneshot"` | `"hold"` | `"startstop"`.
+- **`samples[]`** — `pos` (0-indexed slot, optional → defaults to array order), `file` (path on the mic disk, subdirs OK e.g. `samples/`, `live1/`), `playmode`: `"oneshot"` | `"hold"` | `"startstop"`.
 - **`presets[]`** — one per orange-button slot:
   - `pos` — slot index (which orange position this preset occupies).
   - `list[]` — effect chain in order. Each: `{ "effect": <TYPE>, <params…>, "BUS": 1|2 }`. `BUS` is optional routing. **Use `DELAY`, `REVERB`, `HARMONY`, `SSB` at most once per chain.**
@@ -153,7 +175,7 @@ Create `config.json` at TINGDISK root. It **overrides presets and selects which 
 ---
 
 ## Samples / WAV requirements
-- Override factory samples by placing **`1.wav`, `2.wav`, `3.wav`, `4.wav`** on TINGDISK (or reference any path via `config.json` `file`).
+- Override factory samples by placing **`1.wav`, `2.wav`, `3.wav`, `4.wav`** on the mic disk (or reference any path via `config.json` `file`).
 - WAV only, mono or stereo, 8/16/24-bit or 32-bit float, up to 96 kHz.
 - **Total ~1 MB** across all samples — keep them short.
 - Not active until **restart** (power off via button above USB-C, push handle to start).
@@ -200,7 +222,7 @@ Create `config.json` at TINGDISK root. It **overrides presets and selects which 
 - Dominance measured only among the 4 tone bins is **not enough**: broadband speech peaking near 1500 Hz fired slot 1 (false Enter). Added a **tonality gate** — the winning bin's power must be a large share of the block's *total* energy (≈1.0 for a pure tone, ≈0 for speech). Real speech now scores ~0.00 vs tones ~0.99. Only real silence resets the per-press state so a tonality wobble mid-burst doesn't re-fire. See `tone_tonality_min` (default 0.5) in `~/.tink-agent/config.json`.
 
 **Tests to run with the user:**
-1. ✅ TINGDISK mounts; default contents + factory wav probed.
+1. ✅ Mic disk mounts; default contents + factory wav probed.
 2. ✅ Audio path + transcription verified (handle-held speech → ffmpeg `[5]` → `mw transcribe` → exact text, ~3.7 s).
 3. ✅ Custom tone cues work. Wrote `config.json` + four tone samples (`ting-config/` in repo), restarted unit, recorded a green→white pass. **All 4 detected at 100% single-frequency dominance**, rms ≈ 1600–1935 vs background rms ≈ 560 / ~58% dominance. Detection rule: **burst = rms > 1000 AND dominance > 90%**. Bursts ~0.45 s.
    - Slot 1 = 1500 Hz, slot 2 = 2300 Hz, slot 3 = 3100 Hz, slot 4 = 3900 Hz.
@@ -210,7 +232,7 @@ Create `config.json` at TINGDISK root. It **overrides presets and selects which 
 ---
 
 ## Sources
-- **On-device `readme.pdf`** (TINGDISK) — authoritative for config schema, effect ranges, controls, recovery.
+- **On-device `readme.pdf`** (on the mic disk) — authoritative for config schema, effect ranges, controls, recovery.
 - [EP-2350 ting guide](https://teenage.engineering/guides/ep-2350) · [downloads/firmware](https://teenage.engineering/downloads/ep-2350) · [sound packs](https://teenage.engineering/downloads/ep-2350/sound-packs)
 - [OP Forums: config.json discussion](https://op-forums.com/t/ep-2350-ting-customizable-samples-and-effects-via-config-json/30479)
 - [Unofficial Ting Preset Editor](https://labs-te-ting-preset.vercel.app/)

@@ -35,8 +35,40 @@ from tink_agent.audio import DeviceNotFound
 REPO = Path(__file__).resolve().parent.parent
 
 
-def test_tingdisk_path():
+def test_tingdisk_path_honors_explicit_name():
     assert setup_checks.tingdisk_path("/Volumes", "TINGDISK") == "/Volumes/TINGDISK"
+
+
+def test_tingdisk_path_prefers_whichever_disk_is_mounted():
+    fx_only = lambda p: p.endswith("FX MIC DISK")
+    assert setup_checks.tingdisk_path("/Volumes", exists_fn=fx_only) == "/Volumes/FX MIC DISK"
+    ting_only = lambda p: p.endswith("TINGDISK")
+    assert setup_checks.tingdisk_path("/Volumes", exists_fn=ting_only) == "/Volumes/TINGDISK"
+
+
+def test_tingdisk_path_defaults_to_tingdisk_when_nothing_mounted():
+    assert setup_checks.tingdisk_path("/Volumes", exists_fn=lambda p: False) == "/Volumes/TINGDISK"
+
+
+def test_is_tingdisk_mounted_finds_fx_mic_disk():
+    fx_only = lambda p: p.endswith("FX MIC DISK")
+    assert setup_checks.is_tingdisk_mounted(exists_fn=fx_only) is True
+
+
+def test_mounted_disk_and_model_identify_each_name():
+    fx_only = lambda p: p.endswith("FX MIC DISK")
+    ting_only = lambda p: p.endswith("TINGDISK")
+    assert setup_checks.mounted_disk(exists_fn=fx_only) == "FX MIC DISK"
+    assert setup_checks.mic_model(exists_fn=fx_only) == "FX MIC"
+    assert setup_checks.mounted_disk(exists_fn=ting_only) == "TINGDISK"
+    assert setup_checks.mic_model(exists_fn=ting_only) == "Ting"
+    assert setup_checks.mounted_disk(exists_fn=lambda p: False) is None
+    assert setup_checks.mic_model(exists_fn=lambda p: False) is None
+
+
+def test_is_tingdisk_mounted_with_explicit_path_ignores_disk_search():
+    assert setup_checks.is_tingdisk_mounted("/x", exists_fn=lambda p: p == "/x") is True
+    assert setup_checks.is_tingdisk_mounted("/x", exists_fn=lambda p: p != "/x") is False
 
 
 def test_is_tingdisk_mounted_uses_exists_fn():
