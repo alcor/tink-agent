@@ -59,6 +59,18 @@ _SAMPLE_NAMES = ("1.wav", "2.wav", "3.wav", "4.wav")
 SUPPORTED_MICS = {"TINGDISK": "Ting", "FX MIC DISK": "FX MIC"}
 _DEFAULT_DISK = "TINGDISK"
 
+# Button colours differ between the two: the slot-select and play buttons are
+# green/white on a Ting and white/gray on an FX MIC. The mode button is orange on both.
+BUTTON_NAMES = {
+    "Ting":   {"mode": "orange", "select": "green", "play": "white"},
+    "FX MIC": {"mode": "orange", "select": "white", "play": "gray"},
+}
+
+
+def button_names(model: str | None) -> dict:
+    """Button colour names for the unit's sold-under name; Ting's when unknown."""
+    return BUTTON_NAMES.get(model or "", BUTTON_NAMES["Ting"])
+
 
 def mounted_disk(volumes="/Volumes", exists_fn=os.path.isdir) -> str | None:
     """Volume name of the first supported mic disk that is mounted, else None."""

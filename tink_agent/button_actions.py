@@ -15,7 +15,7 @@ from AppKit import (
 )
 from Foundation import NSObject
 
-from . import theme
+from . import theme, setup_checks
 from .actions import ACTION_CATALOG
 
 W, H = 600, 408
@@ -186,6 +186,11 @@ class DeviceView(theme.Flipped):
 
 
 class ButtonActionsController(NSObject):
+    @objc.python_method
+    def _button_names(self):
+        config = getattr(getattr(self, "app", None), "config", None)
+        return setup_checks.button_names(getattr(config, "mic_model", ""))
+
     def initWithApp_(self, app):
         self = objc.super(ButtonActionsController, self).init()
         if self is None:
@@ -213,13 +218,14 @@ class ButtonActionsController(NSObject):
         rw = W - rx - M
         y = M + 4
 
-        mh = theme.section_header("Orange button · Mode")
+        b = self._button_names()
+        mh = theme.section_header(f"{b['mode'].capitalize()} button · Mode")
         mh.setFrame_(NSMakeRect(rx, y, rw, 16)); c.addSubview_(mh); y += 22
         self.seg_mode = theme.segmented(
             ["Bank A", "Bank B"], 0, self._on_mode, rx, y, rw, 26)
         c.addSubview_(self.seg_mode); y += 40
 
-        sh = theme.section_header("Green button · Slot")
+        sh = theme.section_header(f"{b['select'].capitalize()} button · Slot")
         sh.setFrame_(NSMakeRect(rx, y, rw, 16)); c.addSubview_(sh); y += 22
         self.seg_slot = theme.segmented(
             ["1", "2", "3", "4"], 0, self._on_slot, rx, y, rw, 26)
@@ -233,7 +239,7 @@ class ButtonActionsController(NSObject):
         self.hdr.setFrame_(NSMakeRect(14, 12, rw - 28, 22)); body.addSubview_(self.hdr)
         self.cap = theme.label("", size=12, color=theme.SUBTLE)
         self.cap.setFrame_(NSMakeRect(14, 36, rw - 28, 16)); body.addSubview_(self.cap)
-        wl = theme.label("WHITE BUTTON FIRES", size=10.5, weight="semibold",
+        wl = theme.label(f"{b['play'].upper()} BUTTON FIRES", size=10.5, weight="semibold",
                          color=theme.MUTED)
         wl.setFrame_(NSMakeRect(14, 64, rw - 28, 14)); body.addSubview_(wl)
         _, self.popup = theme.popup_row("", rw, 84, h=40)

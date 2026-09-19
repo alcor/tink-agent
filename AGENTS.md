@@ -425,7 +425,7 @@ ever drew the icon, so audio start is deferred to the first `_tick`.
 - **PTT** — push-to-talk; here, the mic's physical handle (hardware-gated, no signal to
   the host).
 - **Slot** — a (mode, sample) pair mapped to a tone frequency and a keystroke action.
-  Green selects which of the 4 samples; white plays it; **orange selects the mode**: pos 0
+  The select button (green on a Ting, white on an FX MIC) picks which of the 4 samples; the play button (white on a Ting, gray on an FX MIC) plays it; **orange selects the mode**: pos 0
   = mode A (slots 1–4, base pitch), pos 1 = mode B (slots 5–8, pitch +10.5 → higher
   frequencies). 8 detectable tones total. The app is stateless — each tone's frequency
   encodes both mode and sample, so it never tracks orange. Mode/slot are shown on the

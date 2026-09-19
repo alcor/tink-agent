@@ -46,6 +46,7 @@ names below. Everything else in this document applies to both.
 | Mass-storage volume | `TINGDISK` | `FX MIC DISK` |
 | Firmware (UF2) boot volume | `TING BOOT` | `FX MIC BOOT` |
 | Factory sample slots | siren, alarm, gunshot, monkey boy | horn, claps, bell, f*k |
+| Buttons: mode / select / play | orange / green / white | orange / white / gray |
 | Factory sample file seen on disk | `1_.wav` (16 kHz stereo s16, 6.4 s, 410 KB) | `4_.wav` (32 kHz stereo s16, 3.6 s, 473 KB) |
 
 Verified 2026-09-08 on an FX MIC-named unit: `FX MIC DISK` mounts with `4_.wav`, `readme.pdf`, and
@@ -56,8 +57,8 @@ either volume name and reports the model it found.
 ### Controls
 - **Handle (squeeze / "PTT")** — push to power on **and to enable the mic**. Handle **position (0–100%) modulates an effect parameter** (which one is preset-defined). Continuous control, not a clean digital button.
 - **Orange button** — selects voice/effect preset position: **`[ clean, echo, echo+spring, pixie, robot ]`** (clean + 4 effect presets). **4 mode LEDs** show the position; position 0 (clean) = **no mode LED lit**.
-- **Green button** — selects sample slot: factory **`[ siren, alarm, gunshot, monkey boy ]`** (4 slots; replaceable). **4 slot LEDs** show the selection.
-- **White button** — plays the selected sample.
+- **Green button** (white on an FX MIC) — selects sample slot: factory **`[ siren, alarm, gunshot, monkey boy ]`** (4 slots; replaceable). **4 slot LEDs** show the selection.
+- **White button** (gray on an FX MIC) — plays the selected sample.
 - **Shake (accelerometer)** — temporarily modifies the effect; behavior is preset-dependent.
 
 > **Our app repurposes orange as a mode switch.** `ting-config/config.json` ships two

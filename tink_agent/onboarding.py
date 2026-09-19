@@ -103,6 +103,7 @@ class OnboardingController(NSObject):
         v = theme._BGView.alloc().initWithFrame_(NSMakeRect(0, 0, W, H))
         head = theme.label("TINK is ready", size=24, weight="bold", color=theme.GREEN)
         head.setFrame_(NSMakeRect(24, 24, W - 48, 30)); v.addSubview_(head)
+        b = setup_checks.button_names(self.app.config.mic_model)
         steps = [
             ("Choose transcription software",
              "Open Settings and pick your engine (e.g. MacWhisper)."),
@@ -110,8 +111,8 @@ class OnboardingController(NSObject):
              "Squeeze and hold the handle (push-to-talk). Your words are typed "
              "into the focused app."),
             ("Accept or change the action",
-             "Press the white button to accept. Use green to pick the slot, "
-             "orange to switch the action bank."),
+             f"Press the {b['play']} button to accept. Use {b['select']} to pick "
+             f"the slot, {b['mode']} to switch the action bank."),
         ]
         y = 72
         for i, (t, s) in enumerate(steps):
@@ -188,6 +189,10 @@ class OnboardingController(NSObject):
 
         model = setup_checks.mic_model()
         mounted = model is not None
+        if mounted and c.mic_model != model:
+            c.mic_model = model
+            c.save()
+        b = setup_checks.button_names(c.mic_model or model)
         audio_ok = setup_checks.audio_present(c)
         ok2 = mounted and audio_ok
         self.cards[1]["row"].set_state("done" if ok2 else ("active" if ok1 else "pending"))
@@ -214,7 +219,7 @@ class OnboardingController(NSObject):
         elif not audio_ok:
             verify_sub = "Audio adapter not detected — reconnect it (step 2)."
         else:
-            verify_sub = "Listening… press a mic button (green, then white)."
+            verify_sub = f"Listening… press a mic button ({b['select']}, then {b['play']})."
         self.cards[3]["row"].set_state("done" if heard else ("active" if files else "pending"))
         self.cards[3]["row"].set_subtitle(verify_sub)
         if self.cards[3]["btn"] is not None:

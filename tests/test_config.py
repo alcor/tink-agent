@@ -26,6 +26,13 @@ def test_save_then_load_roundtrip(tmp_path):
     assert {k: loaded.tones[k] for k in (1, 2, 3, 4)} == {1: 1500, 2: 2300, 3: 3100, 4: 3900}
 
 
+def test_mic_model_defaults_empty_and_roundtrips(tmp_path):
+    assert Config().mic_model == ""
+    p = tmp_path / "config.json"
+    Config(mic_model="FX MIC").save(p)
+    assert Config.load(p).mic_model == "FX MIC"
+
+
 def test_load_missing_writes_defaults(tmp_path):
     p = tmp_path / "config.json"
     loaded = Config.load(p)

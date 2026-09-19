@@ -66,6 +66,13 @@ def test_mounted_disk_and_model_identify_each_name():
     assert setup_checks.mic_model(exists_fn=lambda p: False) is None
 
 
+def test_button_names_follow_the_unit_name():
+    assert setup_checks.button_names("Ting") == {"mode": "orange", "select": "green", "play": "white"}
+    assert setup_checks.button_names("FX MIC") == {"mode": "orange", "select": "white", "play": "gray"}
+    assert setup_checks.button_names("") == setup_checks.button_names("Ting")
+    assert setup_checks.button_names(None) == setup_checks.button_names("Ting")
+
+
 def test_is_tingdisk_mounted_with_explicit_path_ignores_disk_search():
     assert setup_checks.is_tingdisk_mounted("/x", exists_fn=lambda p: p == "/x") is True
     assert setup_checks.is_tingdisk_mounted("/x", exists_fn=lambda p: p != "/x") is False

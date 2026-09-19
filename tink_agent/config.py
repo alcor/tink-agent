@@ -46,6 +46,9 @@ class Config:
     start_at_login: bool = False
     # First-run onboarding ("Set up TINK") completed at least once.
     onboarding_done: bool = False
+    # Name the EP-2350 was sold under ("Ting" | "FX MIC"); onboarding records it
+    # when the mic disk is mounted so button labels stay right when it is not.
+    mic_model: str = ""
     # Activity log: transcripts, target app, and actions written to a TSV file.
     log_activity: bool = False
     log_path: str = ""  # empty -> ~/Library/Logs/TinkAgent-activity.log

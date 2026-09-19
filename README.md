@@ -45,7 +45,9 @@ The result feels closer to directing an agent than operating a terminal.
 
 - **Push-to-talk voice input** - the EP-2350 handle is the natural talk boundary. Hold,
   speak, release, and tink-agent transcribes the utterance into the focused app.
-- **Up to 8 mic-triggered actions** - green selects a slot, white plays it, orange
+- **Up to 8 mic-triggered actions** - the select button picks a slot, the play
+  button fires it, orange switches mode. Select/play are green/white on a Ting and
+  white/gray on an FX MIC; the app labels them by the unit it detected. Orange
   switches mode. Mode A gives slots 1-4; mode B gives slots 5-8.
 - **Button actions built for agent workflows** - defaults include Enter, Escape,
   Ctrl-C, Shift-Tab, Up, and Down. The catalog also supports Tab, Shift-Enter,
@@ -65,12 +67,12 @@ Example mappings:
 
 | Mic move | Default action | Agent use |
 |---|---:|---|
-| Mode A, slot 1, white | Enter | approve plan / submit prompt |
-| Mode A, slot 2, white | Escape | reject, cancel, close popover |
-| Mode A, slot 3, white | Ctrl-C | interrupt a runaway command |
-| Mode A, slot 4, white | Shift-Tab | cycle agent mode |
-| Mode B, slot 1, white | Up | recall previous prompt |
-| Mode B, slot 2, white | Down | move forward in prompt history |
+| Mode A, slot 1, play | Enter | approve plan / submit prompt |
+| Mode A, slot 2, play | Escape | reject, cancel, close popover |
+| Mode A, slot 3, play | Ctrl-C | interrupt a runaway command |
+| Mode A, slot 4, play | Shift-Tab | cycle agent mode |
+| Mode B, slot 1, play | Up | recall previous prompt |
+| Mode B, slot 2, play | Down | move forward in prompt history |
 | Mode B, slots 3-4 | No-op by default | reserved for your macros |
 
 <p align="center">
@@ -106,6 +108,7 @@ his X post inspired this project.
 | USB disk name | `TINGDISK` | `FX MIC DISK` |
 | Firmware boot disk | `TING BOOT` | `FX MIC BOOT` |
 | Factory samples | siren, alarm, gunshot, monkey boy | horn, claps, bell, f*k |
+| Buttons: select / play / mode | green / white / orange | white / gray / orange |
 | `config.json` schema | same | same |
 | Works with tink-agent | yes | yes |
 
