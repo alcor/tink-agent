@@ -99,9 +99,19 @@ def test_copy_then_files_match(tmp_path):
     assert setup_checks.files_match(REPO, tingdisk) is False
     setup_checks.copy_device_config(REPO, tingdisk)
     assert (tingdisk / "config.json").exists()
-    assert (tingdisk / "samples" / "1.wav").exists()
-    assert (tingdisk / "samples" / "4.wav").exists()
+    assert (tingdisk / "1.wav").exists()
+    assert (tingdisk / "4.wav").exists()
+    assert not (tingdisk / "samples").exists()
     assert setup_checks.files_match(REPO, tingdisk) is True
+
+
+def test_device_config_lands_where_config_json_points(tmp_path):
+    import json
+    tingdisk = tmp_path / "FX MIC DISK"
+    setup_checks.copy_device_config(REPO, tingdisk)
+    cfg = json.loads((tingdisk / "config.json").read_text())
+    for entry in cfg["samples"]:
+        assert (tingdisk / entry["file"]).exists(), entry["file"]
 
 
 def test_files_match_false_on_size_diff(tmp_path):

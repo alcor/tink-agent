@@ -50,8 +50,10 @@ names below. Everything else in this document applies to both.
 | Factory sample file seen on disk | `1_.wav` (16 kHz stereo s16, 6.4 s, 410 KB) | `4_.wav` (32 kHz stereo s16, 3.6 s, 473 KB) |
 
 Verified 2026-09-08 on an FX MIC-named unit: `FX MIC DISK` mounts with `4_.wav`, `readme.pdf`, and
-`System Volume Information/`; `config.json` + `samples/1..4.wav` copied to the root and
-`setup_checks.files_match()` reports a full match. `tink_agent.setup_checks` looks for
+`System Volume Information/`; `config.json` + `1..4.wav` copied to the root and
+`setup_checks.files_match()` reports a full match. An earlier copy that put the wavs in
+`samples/` while `config.json` named them at the root played the factory sounds instead:
+the paths in `config.json` are relative to the disk root and must match where the files are. `tink_agent.setup_checks` looks for
 either volume name and reports the model it found.
 
 ### Controls

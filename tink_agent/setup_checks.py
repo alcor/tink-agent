@@ -105,25 +105,27 @@ def audio_present(config, resolve_fn=None) -> bool:
 
 
 def device_config_sources(repo_root):
-    """Repo-side files to copy onto TINK: config.json + samples/1..4.wav."""
+    """Repo-side files to copy onto the mic disk: config.json + 1..4.wav."""
     base = Path(repo_root) / "ting-config"
     return [base / "config.json"] + [base / "samples" / n for n in _SAMPLE_NAMES]
 
 
 def _dest_for(src, repo_root, tingdisk):
-    rel = Path(src).relative_to(Path(repo_root) / "ting-config")
-    return Path(tingdisk) / rel
+    # Everything lands at the disk root. config.json names the samples as
+    # "1.wav".."4.wav" with no directory, and the firmware also treats root-level
+    # 1.wav..4.wav as overrides of the factory samples even without a config.
+    return Path(tingdisk) / Path(src).name
 
 
 def copy_device_config(repo_root, tingdisk) -> None:
-    """Copy config + samples onto TINK (creates samples/)."""
-    (Path(tingdisk) / "samples").mkdir(parents=True, exist_ok=True)
+    """Copy config + samples onto the mic disk root."""
+    Path(tingdisk).mkdir(parents=True, exist_ok=True)
     for src in device_config_sources(repo_root):
         shutil.copy2(str(src), str(_dest_for(src, repo_root, tingdisk)))
 
 
 def files_match(repo_root, tingdisk) -> bool:
-    """True if every source exists on TINK with a matching byte size."""
+    """True if every source exists on the mic disk with a matching byte size."""
     for src in device_config_sources(repo_root):
         dst = _dest_for(src, repo_root, tingdisk)
         if not dst.exists() or dst.stat().st_size != src.stat().st_size:

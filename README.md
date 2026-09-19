@@ -203,9 +203,11 @@ USB-C part of setup.
 1. Connect the EP-2350 over USB-C and power it on so its disk mounts. It is named
    `TINGDISK` or `FX MIC DISK`, matching the name your unit was sold under.
 2. Wait for the disk to mount.
-3. Copy the contents of [`ting-config/`](ting-config/) to the root of the disk, so
-   `config.json` and `samples/` sit at the top level (not inside a `ting-config`
-   folder).
+3. Copy `config.json` and `1.wav`..`4.wav` from [`ting-config/`](ting-config/) to
+   the root of the disk. All five files sit at the top level: the config names the
+   samples with no directory, and the firmware also treats root-level `1.wav`..`4.wav`
+   as replacements for the factory samples. The app's onboarding "Copy files" button
+   does this for you.
 4. Restart the EP-2350. Device config is loaded only at boot.
 5. For normal use, disconnect USB-C. Run the EP-2350 from its own batteries and connect
    only the line-out/audio jack to your USB audio adapter.
